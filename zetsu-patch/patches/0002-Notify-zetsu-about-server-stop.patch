@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: zrdzn <zrdzn9@gmail.com>
+Date: Sun, 11 Oct 2026 18:24:56 +0200
+Subject: [PATCH] Notify zetsu about server stop
+
+---
+ zombie/network/GameServer.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/zombie/network/GameServer.java b/zombie/network/GameServer.java
+index 58f3d45b0444e30b812fd56f9ff933c2dbd28d55..dc19edf581cdb631ccd200ee47c15b7c27d1939a 100644
+--- a/zombie/network/GameServer.java
++++ b/zombie/network/GameServer.java
+@@ -4074,6 +4074,7 @@ public class GameServer {
+             @Override
+             public void run() {
+                 try {
++                    com.zetsuengine.server.ZetsuBootstrap.handleEngineStop();
+                     System.out.println("Shutdown handling started");
+                     CoopSlave.status("UI_ServerStatus_Terminated");
+                     DebugLog.log(DebugType.Network, "Server exited");
