@@ -1,0 +1,57 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: zrdzn <zrdzn9@gmail.com>
+Date: Sun, 11 Oct 2026 14:36:07 +0200
+Subject: [PATCH] Run zetsu bootstrapper from pz game server
+
+---
+ zombie/network/GameServer.java | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/zombie/network/GameServer.java b/zombie/network/GameServer.java
+index 5298c14e82d07286d33b09ea15cc91029979f6d1..58f3d45b0444e30b812fd56f9ff933c2dbd28d55 100644
+--- a/zombie/network/GameServer.java
++++ b/zombie/network/GameServer.java
+@@ -873,7 +873,7 @@ public class GameServer {
+                 NetworkStatistic.getInstance().packets.increase(MainLoopNetData2.size());
+                 for (int n = 0; n < MainLoopNetData2.size(); ++n) {
+                     data = MainLoopNetData2.get(n);
+-                    if (data.isConnect()) {
++                    if (((IZomboidPacket) data).isConnect()) {
+                         if (!closed) {
+                             ((DelayedConnection)data).connect();
+                             continue;
+@@ -881,7 +881,7 @@ public class GameServer {
+                         ((DelayedConnection)data).connection.forceDisconnect("server-closed");
+                         continue;
+                     }
+-                    if (data.isDisconnect()) {
++                    if (((IZomboidPacket) data).isDisconnect()) {
+                         ((DelayedConnection)data).disconnect();
+                         continue;
+                     }
+@@ -910,7 +910,7 @@ public class GameServer {
+                 MainLoopNetData2.clear();
+                 data = MainLoopNetDataQ.poll();
+                 while (data != null) {
+-                    MainLoopNetData2.add(data);
++                    MainLoopNetData2.add((IZomboidPacket) data);
+                     data = MainLoopNetDataQ.poll();
+                 }
+                 for (int n = 0; n < MainLoopNetData2.size(); ++n) {
+@@ -1477,6 +1477,7 @@ public class GameServer {
+             StackBot stackBot = new StackBot(webhookAddress);
+             EventManager.instance().registerCallback(stackBot);
+         }
++        com.zetsuengine.server.ZetsuBootstrap.handleEngineStart();
+     }
+ 
+     private static void mainLoopDealWithNetData(ZomboidNetData d) {
+@@ -2738,7 +2739,7 @@ public class GameServer {
+             return;
+         }
+         if (objects.length == 0) {
+-            GameServer.sendObjectChange(o, change, null);
++            GameServer.sendObjectChange(o, change, (KahluaTable) null);
+             return;
+         }
+         if (objects.length % 2 != 0) {
