@@ -15,6 +15,7 @@
         <module>zetsu-clip</module>
         <module>zetsu-catalyst</module>
         <module>zetsu-common</module>
+        <module>zetsu-plugin-example</module>
     </modules>
 
     <properties>

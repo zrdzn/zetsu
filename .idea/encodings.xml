@@ -13,6 +13,8 @@
     <file url="file://$PROJECT_DIR$/zetsu-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zetsu-patch/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zetsu-patch/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zetsu-plugin-example/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/zetsu-plugin-example/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zetsu-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zetsu-server/src/main/resources" charset="UTF-8" />
   </component>
