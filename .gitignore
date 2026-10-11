@@ -5,6 +5,7 @@ target/
 .zetsu-env
 zetsu-workspace
 zetsu-out
+*.bpatch
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
