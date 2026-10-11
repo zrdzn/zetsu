@@ -11,5 +11,6 @@ public class ProjectPaths {
     public static final File PZ_SERVER_PATH = new File(ProjectPaths.ENVIRONMENT_PATH, "pz_server");
     public static final File PZ_JAR_PATH = new File(ProjectPaths.PZ_SERVER_PATH, "java" + File.separator + "projectzomboid.jar");
     public static final File PZ_TEST_JAR_PATH = new File(ProjectPaths.PZ_SERVER_PATH, "java" + File.separator + "projectzomboid_test.jar");
+    public static final File STEAMCMD_PATH = new File(ProjectPaths.ENVIRONMENT_PATH, "steamcmd");
 
 }

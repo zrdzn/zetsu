@@ -16,14 +16,11 @@ public class WorkspaceSetup {
     public static void main(String[] args) throws Exception {
         ProjectPaths.ENVIRONMENT_PATH.mkdirs();
 
-        File steamCmdDir = new File(ProjectPaths.ENVIRONMENT_PATH, "steamcmd");
-        File originalJar = new File(ProjectPaths.PZ_SERVER_PATH, "java" + File.separator + "projectzomboid.jar");
-
-        if (!originalJar.exists()) {
-            SteamCmdLauncher.downloadAndRun(ProjectPaths.PZ_SERVER_PATH, steamCmdDir);
+        if (!ProjectPaths.PZ_JAR_PATH.exists()) {
+            SteamCmdLauncher.downloadAndRun(ProjectPaths.PZ_SERVER_PATH, ProjectPaths.STEAMCMD_PATH);
         }
 
-        if (!originalJar.exists()) {
+        if (!ProjectPaths.PZ_JAR_PATH.exists()) {
             System.exit(1);
         }
 
@@ -36,7 +33,7 @@ public class WorkspaceSetup {
 
         ProcessBuilder decompilePb = new ProcessBuilder(
                 "java", "-jar", cfrJar.getAbsolutePath(),
-                originalJar.getAbsolutePath(),
+                ProjectPaths.PZ_JAR_PATH.getAbsolutePath(),
                 "--outputdir", ProjectPaths.WORKSPACE_PATH.getAbsolutePath()
         );
         decompilePb.inheritIO().start().waitFor();
