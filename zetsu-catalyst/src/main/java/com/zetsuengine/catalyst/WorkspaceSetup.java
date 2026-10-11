@@ -16,12 +16,11 @@ public class WorkspaceSetup {
     public static void main(String[] args) throws Exception {
         ProjectPaths.ENVIRONMENT_PATH.mkdirs();
 
-        File serverDir = new File(ProjectPaths.ENVIRONMENT_PATH, "pz_server");
         File steamCmdDir = new File(ProjectPaths.ENVIRONMENT_PATH, "steamcmd");
-        File originalJar = new File(serverDir, "java" + File.separator + "projectzomboid.jar");
+        File originalJar = new File(ProjectPaths.PZ_SERVER_PATH, "java" + File.separator + "projectzomboid.jar");
 
         if (!originalJar.exists()) {
-            SteamCmdLauncher.downloadAndRun(serverDir, steamCmdDir);
+            SteamCmdLauncher.downloadAndRun(ProjectPaths.PZ_SERVER_PATH, steamCmdDir);
         }
 
         if (!originalJar.exists()) {
