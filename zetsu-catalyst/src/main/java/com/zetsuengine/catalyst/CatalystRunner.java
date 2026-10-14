@@ -29,15 +29,16 @@ public class CatalystRunner {
         }
         ProjectPaths.OUT_PATH.mkdirs();
 
+        File projectRoot = ProjectPaths.WORKSPACE_PATH.getParentFile();
+        File zetsuServerClasses = new File(projectRoot, "zetsu-server/target/classes");
+        File zetsuApiClasses = new File(projectRoot, "zetsu-api/target/classes");
+
         List<String> modifiedFiles = getModifiedJavaFiles();
 
         if (!modifiedFiles.isEmpty()) {
             List<String> javacArgs = new ArrayList<>();
             javacArgs.add("javac");
             javacArgs.add("-cp");
-
-            File zetsuServerClasses = new File("zetsu-server/target/classes");
-            File zetsuApiClasses = new File("zetsu-api/target/classes");
 
             String combinedClasspath = ProjectPaths.PZ_JAR_PATH.getAbsolutePath()
                     + File.pathSeparator + zetsuServerClasses.getAbsolutePath()
@@ -100,17 +101,29 @@ public class CatalystRunner {
         runArgs.add("-Xms8g");
         runArgs.add("-Xmx8g");
 
-        runArgs.add("-Djava.library.path=" + new File(ProjectPaths.PZ_SERVER_PATH, "natives").getAbsolutePath());
+        // cross-platform native library discovery
+        boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+        File pzServer = ProjectPaths.PZ_SERVER_PATH;
 
-        File projectRoot = ProjectPaths.WORKSPACE_PATH.getParentFile();
-        File zetsuServerClasses = new File(projectRoot, "zetsu-server/target/classes");
-        File zetsuApiClasses = new File(projectRoot, "zetsu-api/target/classes");
+        List<String> nativePaths = new ArrayList<>();
+        if (isWindows) {
+            nativePaths.add(new File(pzServer, "win64").getAbsolutePath());
+            nativePaths.add(new File(pzServer, "natives/win64").getAbsolutePath());
+        } else {
+            nativePaths.add(new File(pzServer, "linux64").getAbsolutePath());
+            nativePaths.add(new File(pzServer, "natives/linux64").getAbsolutePath());
+        }
+        nativePaths.add(new File(pzServer, "natives").getAbsolutePath());
+        nativePaths.add(pzServer.getAbsolutePath());
+
+        String combinedNativesPath = String.join(File.pathSeparator, nativePaths);
+        runArgs.add("-Djava.library.path=" + combinedNativesPath);
 
         StringBuilder classpathBuilder = new StringBuilder();
 
         // include server api and impl in classpath
         classpathBuilder.append(ProjectPaths.OUT_PATH.getAbsolutePath())
-                .append(File.pathSeparator).append(ProjectPaths.PZ_JAR_PATH.getAbsolutePath())
+                .append(File.pathSeparator).append(ProjectPaths.PZ_TEST_JAR_PATH.getAbsolutePath())
                 .append(File.pathSeparator).append(zetsuServerClasses.getAbsolutePath())
                 .append(File.pathSeparator).append(zetsuApiClasses.getAbsolutePath());
 
@@ -134,6 +147,17 @@ public class CatalystRunner {
 
         ProcessBuilder runPb = new ProcessBuilder(runArgs);
         runPb.directory(ProjectPaths.PZ_SERVER_PATH);
+
+        // dynamic linker resolution: LD_LIBRARY_PATH on Linux, PATH on Windows
+        Map<String, String> procEnv = runPb.environment();
+        if (isWindows) {
+            String currentPath = procEnv.getOrDefault("Path", procEnv.getOrDefault("PATH", ""));
+            procEnv.put("PATH", combinedNativesPath + File.pathSeparator + currentPath);
+        } else {
+            String currentLd = procEnv.getOrDefault("LD_LIBRARY_PATH", "");
+            procEnv.put("LD_LIBRARY_PATH", combinedNativesPath + (currentLd.isEmpty() ? "" : File.pathSeparator + currentLd));
+        }
+
         runPb.inheritIO();
 
         Process serverProcess = runPb.start();
