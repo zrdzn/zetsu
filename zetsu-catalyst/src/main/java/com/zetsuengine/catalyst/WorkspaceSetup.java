@@ -8,6 +8,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 public class WorkspaceSetup {
 
@@ -51,10 +55,22 @@ public class WorkspaceSetup {
         gitCommitPb.inheritIO().start().waitFor();
 
         File patchesDir = ProjectPaths.PATCHES_PATH;
-        if (patchesDir.exists() && patchesDir.listFiles() != null && patchesDir.listFiles().length > 0) {
-            ProcessBuilder gitApplyPb = new ProcessBuilder("git", "am", "../zetsu-patches/patches/*.patch");
-            gitApplyPb.directory(ProjectPaths.WORKSPACE_PATH);
-            gitApplyPb.inheritIO().start().waitFor();
+        if (patchesDir.exists()) {
+            File[] patchFiles = patchesDir.listFiles((_, name) -> name.endsWith(".patch"));
+            if (patchFiles != null && patchFiles.length > 0) {
+                Arrays.sort(patchFiles, Comparator.comparing(File::getName));
+
+                List<String> command = new ArrayList<>();
+                command.add("git");
+                command.add("am");
+                for (File patchFile : patchFiles) {
+                    command.add(patchFile.getAbsolutePath());
+                }
+
+                ProcessBuilder gitApplyPb = new ProcessBuilder(command);
+                gitApplyPb.directory(ProjectPaths.WORKSPACE_PATH);
+                gitApplyPb.inheritIO().start().waitFor();
+            }
         }
     }
 }
